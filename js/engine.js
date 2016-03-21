@@ -25,8 +25,8 @@ var Engine = (function(global) {
         ctx = canvas.getContext('2d'),
         lastTime;
 
-    canvas.width = 505;
-    canvas.height = 606;
+    canvas.width = 707;
+    canvas.height = 700;
     doc.body.appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
@@ -41,6 +41,7 @@ var Engine = (function(global) {
          */
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
+
 
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
@@ -64,7 +65,6 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
         lastTime = Date.now();
         main();
     }
@@ -80,7 +80,54 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+        reachRiver();
+    }
+
+    /* Loop through all enemies
+     * Check if their coordinates approaches player coordinates
+     * close enough to resemble collision
+     * call reset if collision detected
+     * First, check if enemy are in the same row with Player
+     * if that's the case, check if enemy is close enough to player
+     * Loop through all gems, see if player picks up the gem,
+     * add points to player */
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy) {
+            // check if in the same row
+            // and enemy close enough to player
+            if (enemy.row == player.row && collide(enemy)) {
+                console.log("dead");
+                // reset game
+                reset();
+            }
+        });
+        /*
+        allGems.forEach(function(gem)) {
+            // see if in the same row
+            // and if close enough to player
+            if (gem.row == player.row && collide(gem, player)) {
+                console.log("yay!");
+                // add points to player
+                player.points += gem.point;
+            }
+        }
+        */
+    }
+
+    /* Check if player is close enough to enemy
+     * to be determined as hit by enemy, or close enough to item
+     * for player to pick up */
+    function collide(entity) {
+        /* @return true: if player touches bug */
+        if (Math.abs(player.x - entity.x) <= 50) return true;
+        else return false;
+    }
+
+    function reachRiver() {
+        /* @description: if player reaches river
+         * reset game */
+        if(player.row == 0) reset();
     }
 
     /* This is called by the update function and loops through all of the
@@ -109,14 +156,13 @@ var Engine = (function(global) {
          */
         var rowImages = [
                 'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/stone-block.png',   // Row 1 of 5 of stone
+                'images/stone-block.png',   // Row 2 of 5 of stone
+                'images/stone-block.png',   // Row 3 of 5 of stone
+                'images/stone-block.png',   // Row 4 of 5 of stone
+                'images/stone-block.png',   // Row 5 of 5 of grass
+                'images/grass-block.png'    // Row 1 of 1 of grass
             ],
-            numRows = 6,
-            numCols = 5,
             row, col;
 
         /* Loop through the number of rows and columns we've defined above
@@ -160,6 +206,11 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+        // clear canvas, redraw elements
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // reset Player
+        player.reset();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
