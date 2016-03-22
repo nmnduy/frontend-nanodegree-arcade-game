@@ -1,7 +1,11 @@
 Frogger Game
 ===============================
 
+## Running instructions
+Use any browser to open file "index.html    ".
+
 ## Game instructions
+### Objectives
 * Try not to get hit by moving bugs
 * Move players using arrow keys
 * Collect as many items as possible for points
