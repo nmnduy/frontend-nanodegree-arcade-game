@@ -1,3 +1,14 @@
 body {
     text-align: center;
 }
+
+#scoreBoard {
+    color: #eea348;
+}
+
+p {
+    text-align: right;
+    font-family: 'Schoolbell', cursive;
+    font-size: 4em;
+    margin: 0;
+}

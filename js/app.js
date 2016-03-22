@@ -2,6 +2,12 @@
 var numRows = 7,
     numCols = 7;
 
+// number of enemies
+var numEnemies = 6;
+
+// number of gems
+var numGems = 2;
+
 // y-coordinate for elements to appear squarely
 // for each row in environment
 // 0 index for row 1
@@ -10,18 +16,24 @@ var numRows = 7,
 var rowYCoord = [];
 
 // vertical step
-// for player and height of row
+// for player
+// also height of row
 var step = 83;
+var stepAcross = 101;
 
+// store img link for collectibles
 var collectibles = {
     "gems": {
-        "sapphire": "images/Gem\ Blue.png",
-        "emerald": "images/Gem\ Green.png",
-        "garnet": "images/Gem\ Orange.png"
+        "sapphire": "images/gem_blue.png",
+        "emerald": "images/gem_green.png",
+        "garnet": "images/gem_orange.png"
     },
     "heart": "images/Heart.png",
     "star": "images/Star.png"
 }
+
+// list of gem types
+var gemTypes = ["sapphire", "emerald", "garnet"];
 
 // define first row coordinate
 rowYCoord.push(-20);
@@ -29,6 +41,12 @@ rowYCoord.push(-20);
 for (var i = 1; i < numRows; i++) {
     // move up according to redefined step
     rowYCoord.push(rowYCoord[i-1] + step);
+}
+
+function randomIntGen(from, to) {
+    // return random integer from [from] to [to]
+    // [to] not included
+    return Math.floor(Math.random() * to) + from;
 }
 
 // Enemies our player must avoid
@@ -53,18 +71,13 @@ Enemy.prototype.random = function() {
 
     // range of row to place enemies in
     // 0-based index
-    var fromRow = 1;
-    var toRow = 5;
-
-    // random row from row 2 to 5
-    index = Math.floor(Math.random() * toRow) + fromRow;
-    this.y = rowYCoord[index];
+    this.y = rowYCoord[randomIntGen(1, numRows - 2)];
 
     // assign Enemy's row number according to y-coordinate
     this.row = rowYCoord.indexOf(this.y);
 
     // random speed
-    this.speed = Math.floor(Math.random() * 500) + 200;
+    this.speed = randomIntGen(200,500);
 }
 
 
@@ -77,7 +90,7 @@ Enemy.prototype.update = function(dt) {
 
     // put enemy at starting position after
     // running pass the screen
-    if (this.x > 600) {
+    if (this.x > numCols * stepAcross) {
         this.x = -100;
         // randomize row for bug to appears in
         this.random();
@@ -103,8 +116,8 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
 
     // place starting position
-    this.startX = 303;
-    this.startY = rowYCoord[6];
+    this.startX = Math.floor(numCols / 2) * stepAcross;
+    this.startY = rowYCoord[numRows-1];
 
     // place player in starting position
     this.x = this.startX;
@@ -115,7 +128,7 @@ var Player = function() {
     this.update();
 
     // length of player's step
-    this.horizontalStep = 101;
+    this.horizontalStep = stepAcross;
     this.verticalStep = step;
 };
 
@@ -145,9 +158,9 @@ Player.prototype.reachBound = function(key) {
     /* bunch of guess work here
      * But do I need to be precise here ? */
     var upBound = -50,
-    lowBound = 505,
+    lowBound = (numRows -1 ) * step,
     leftBound = -50,
-    rightBound = 707;
+    rightBound = numRows * stepAcross;
 
     switch(key) {
         case "left":
@@ -186,18 +199,59 @@ Player.prototype.handleInput = function(key) {
 };
 
 var Gem = function(){
+    /* Gem class */
+
+    // randomly assign gem
+    this.random();
+
+    this.update();
+}
+
+Gem.prototype.random = function() {
+    // ranomize gem position
+    // any row except first and last
+    // any col
+    this.x = randomIntGen(0,numCols) * stepAcross;
+    this.y = rowYCoord[randomIntGen(1,numRows - 2)];
+    this.row = rowYCoord.indexOf(this.y);
+
+    // randomize type
+    this.type = gemTypes[randomIntGen(0,gemTypes.length)];
+}
+
+Gem.prototype.update = function() {
+    // gem image
+    this.sprite = collectibles.gems[this.type];
+
+    // points for picking up gem
+    this.points = this.gemValues[this.type];
+}
+
+Gem.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+Gem.prototype.gemValues = {
+    "sapphire": 100,
+    "emerald": 300,
+    "garnet": 200
 }
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-player = new Player();
-
-allEnemies = [];
+var player = new Player();
+var allEnemies = [];
+var allGems = [];
 
 // create enemies
-for (var i = 0; i < 6; i++) {
+for (var i = 0; i < numEnemies; i++) {
     allEnemies.push(new Enemy());
+}
+
+// create Gems
+for (var i = 0; i < numGems; i++) {
+    allGems.push(new Gem());
 }
 
 // This listens for key presses and sends the keys to your

@@ -22,11 +22,17 @@ var Engine = (function(global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
+        scoreBoard = doc.createElement('p'),
+        scoreSpan = doc.createElement('span'),
         ctx = canvas.getContext('2d'),
         lastTime;
 
     canvas.width = 707;
     canvas.height = 700;
+    scoreSpan.setAttribute('id', 'scoreBoard');
+    scoreBoard.appendChild(doc.createTextNode("Score: "));
+    scoreBoard.appendChild(scoreSpan);
+    doc.body.appendChild(scoreBoard);
     doc.body.appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
@@ -82,6 +88,8 @@ var Engine = (function(global) {
         updateEntities(dt);
         checkCollisions();
         reachRiver();
+        // update player's score
+        doc.getElementById('scoreBoard').innerHTML = player.points;
     }
 
     /* Loop through all enemies
@@ -97,22 +105,19 @@ var Engine = (function(global) {
             // check if in the same row
             // and enemy close enough to player
             if (enemy.row == player.row && collide(enemy)) {
-                console.log("dead");
                 // reset game
                 reset();
             }
         });
-        /*
-        allGems.forEach(function(gem)) {
+        allGems.forEach(function(gem) {
             // see if in the same row
             // and if close enough to player
-            if (gem.row == player.row && collide(gem, player)) {
-                console.log("yay!");
+            if (gem.row == player.row && collide(gem)) {
                 // add points to player
-                player.points += gem.point;
+                player.points += gem.points;
+                gem.random();
             }
-        }
-        */
+        });
     }
 
     /* Check if player is close enough to enemy
@@ -140,6 +145,9 @@ var Engine = (function(global) {
     function updateEntities(dt) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
+        });
+        allGems.forEach(function(gem) {
+            gem.update();
         });
         player.update();
     }
@@ -178,7 +186,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                ctx.drawImage(Resources.get(rowImages[row]), col * stepAcross, row * step);
             }
         }
 
@@ -195,6 +203,10 @@ var Engine = (function(global) {
          */
         allEnemies.forEach(function(enemy) {
             enemy.render();
+        });
+
+        allGems.forEach(function(gem){
+            gem.render();
         });
 
         player.render();
@@ -222,7 +234,10 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/gem_blue.png',
+        'images/gem_green.png',
+        'images/gem_orange.png'
     ]);
     Resources.onReady(init);
 
