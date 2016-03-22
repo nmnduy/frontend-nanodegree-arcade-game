@@ -27,7 +27,7 @@ var Game = function() {
         },
         "heart": "images/Heart.png",
         "star": "images/Star.png"
-    }
+    };
 
     // list of gem types
     this.gemTypes = ["sapphire", "emerald", "garnet"];
@@ -42,7 +42,7 @@ Game.prototype.init = function() {
 
     // add all collectible types to array
     // from collectibles object
-    for (type in this.collectibles) {
+    for (var type in this.collectibles) {
         if (this.collectibles.hasOwnProperty(type)){
             this.collectibleTypes.push(type);
         }
@@ -82,16 +82,12 @@ Game.prototype.randomCollectible = function(){
     switch(this.collectibleTypes[index]) {
         case "gems":
             return new Gem(this);
-            break;
         case "heart":
             return new Heart(this);
-            break;
         case "star":
             return new Star(this);
-            break;
         default:
             return new Gem(this);
-            break;
     }
 };
 
@@ -256,16 +252,12 @@ Player.prototype.reachBound = function(key) {
     switch(key) {
         case "left":
             return (this.x - this.horizontalStep <= leftBound) ? true : false;
-            break;
         case "right":
             return (this.x + this.horizontalStep >= rightBound) ? true : false;
-            break;
         case "up":
             return (this.y - this.verticalStep <= upBound) ? true : false;
-            break;
         case "down":
             return (this.y + this.verticalStep >= lowBound) ? true : false;
-            break;
     }
 };
 

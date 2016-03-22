@@ -37,7 +37,7 @@ var Engine = (function(global) {
     // create elements to display hearts count
     var heartBoard,
         heartImg,
-        heartCount;
+        heartSpan;
     heartBoard = doc.createElement('div');
     heartImg = doc.createElement('img');
     heartImg.setAttribute('src', 'images/Heart.png');
@@ -67,7 +67,6 @@ var Engine = (function(global) {
     var allEnemies = game.allEnemies,
         player = game.player,
         allCollectibles = game.allCollectibles,
-        allEnemies = game.allEnemies,
         randomIntGen = game.randomIntGen,
         numRows = game.NUM_ROWS,
         numCols = game.NUM_COLS,
@@ -200,8 +199,8 @@ var Engine = (function(global) {
     function reachRiver() {
         /* @description: if player reaches river
          * reset game */
-        if(player.row == 0) reset();
-    }
+        if(player.row === 0) reset();
+   	}
 
     /* This is called by the update function and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
