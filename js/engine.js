@@ -71,7 +71,6 @@ var Engine = (function(global) {
         numRows = game.NUM_ROWS,
         numCols = game.NUM_COLS,
         stepAcross = game.stepAcross,
-        generateCollectibles = game.generateCollectibles,
         step = game.step;
 
     // This listens for key presses and sends the keys to your
