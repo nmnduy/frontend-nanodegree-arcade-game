@@ -28,8 +28,8 @@ var Engine = (function(global) {
     // create elements to display scores
     var scoreBoard,
         scoreSpan;
-    scoreBoard = doc.createElement('p'),
-    scoreSpan = doc.createElement('span'),
+    scoreBoard = doc.createElement('p');
+    scoreSpan = doc.createElement('span');
     scoreSpan.setAttribute('id', 'scoreBoard');
     scoreBoard.appendChild(doc.createTextNode("Score: "));
     scoreBoard.appendChild(scoreSpan);
@@ -60,6 +60,33 @@ var Engine = (function(global) {
     canvas.width = 707;
     canvas.height = 700;
 
+    /* create new game and start */
+    var game = new Game();
+    game.init();
+    // allowing methods here to see game's namespace
+    var allEnemies = game.allEnemies,
+        player = game.player,
+        allCollectibles = game.allCollectibles,
+        allEnemies = game.allEnemies,
+        randomIntGen = game.randomIntGen,
+        numRows = game.NUM_ROWS,
+        numCols = game.NUM_COLS,
+        stepAcross = game.stepAcross,
+        generateCollectibles = game.generateCollectibles,
+        step = game.step;
+
+    // This listens for key presses and sends the keys to your
+    // Player.handleInput() method. You don't need to modify this.
+    document.addEventListener('keyup', function(e) {
+        var allowedKeys = {
+            37: 'left',
+            38: 'up',
+            39: 'right',
+            40: 'down'
+        };
+        game.player.handleInput(allowedKeys[e.keyCode]);
+    });
+
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
      */
@@ -72,7 +99,6 @@ var Engine = (function(global) {
          */
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
-
 
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
@@ -195,7 +221,7 @@ var Engine = (function(global) {
 
         // refill collectible
         if (allCollectibles.length == randomIntGen(0,3)){
-            generateCollectibles(randomIntGen(1,5));
+            game.generateCollectibles(randomIntGen(1,5));
         }
     }
 
