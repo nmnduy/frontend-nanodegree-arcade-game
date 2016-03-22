@@ -11,6 +11,7 @@ For detailed instructions on how to get started, check out this [guide](https://
 * Game pausing?
 * Game reset?
 * Limited-time gem
+
 ## Completed
 * Make sure player doesn't fall out of boundary
 * Player can move
