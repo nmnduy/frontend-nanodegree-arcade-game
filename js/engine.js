@@ -22,18 +22,43 @@ var Engine = (function(global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
-        scoreBoard = doc.createElement('p'),
-        scoreSpan = doc.createElement('span'),
         ctx = canvas.getContext('2d'),
         lastTime;
 
-    canvas.width = 707;
-    canvas.height = 700;
+    // create elements to display scores
+    var scoreBoard,
+        scoreSpan;
+    scoreBoard = doc.createElement('p'),
+    scoreSpan = doc.createElement('span'),
     scoreSpan.setAttribute('id', 'scoreBoard');
     scoreBoard.appendChild(doc.createTextNode("Score: "));
     scoreBoard.appendChild(scoreSpan);
-    doc.body.appendChild(scoreBoard);
+
+    // create elements to display hearts count
+    var heartBoard,
+        heartImg,
+        heartCount;
+    heartBoard = doc.createElement('div');
+    heartImg = doc.createElement('img');
+    heartImg.setAttribute('src', 'images/Heart.png');
+    heartSpan = doc.createElement('span');
+    heartSpan.setAttribute('id', 'heart-count');
+    heartBoard.appendChild(heartImg);
+    heartBoard.appendChild(heartSpan);
+    heartBoard.setAttribute('id', 'heartBoard');
+
+    // div to place player's stats
+    var statDiv = doc.createElement('div');
+    statDiv.setAttribute('id', "stat");
+
+    // add elements to page's body
+    statDiv.appendChild(heartBoard);
+    statDiv.appendChild(scoreBoard);
+    doc.body.appendChild(statDiv);
     doc.body.appendChild(canvas);
+
+    canvas.width = 707;
+    canvas.height = 700;
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -90,6 +115,8 @@ var Engine = (function(global) {
         reachRiver();
         // update player's score
         doc.getElementById('scoreBoard').innerHTML = player.points;
+        // update player's heart count
+        doc.getElementById('heart-count').innerHTML = player.lives;
     }
 
     /* Loop through all enemies
@@ -103,19 +130,34 @@ var Engine = (function(global) {
     function checkCollisions() {
         allEnemies.forEach(function(enemy) {
             // check if in the same row
-            // and enemy close enough to player
+            // and enemy hits player
             if (enemy.row == player.row && collide(enemy)) {
-                // reset game
-                reset();
+                // if no more lives count
+                if (player.lives === 0) {
+                    reset();
+                }
+                // if lives count not 0
+                else player.lives--;
             }
         });
-        allGems.forEach(function(gem) {
-            // see if in the same row
+        allCollectibles.forEach(function(item) {
+            // see if itemthe same row
             // and if close enough to player
-            if (gem.row == player.row && collide(gem)) {
-                // add points to player
-                player.points += gem.points;
-                gem.random();
+            if (item.row == player.row && collide(item)) {
+                // add points or lives count
+                // according to item's type
+                if (item instanceof Star){
+                    player.lives ++;
+                    player.points += item.points;
+                }
+                if (item instanceof Heart){
+                    player.lives += 1;
+                }
+                if (item instanceof Gem){
+                    player.points += item.points;
+                }
+                // make item disappear
+                item.vanish();
             }
         });
     }
@@ -146,10 +188,15 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        allGems.forEach(function(gem) {
-            gem.update();
+        allCollectibles.forEach(function(item) {
+            item.update();
         });
         player.update();
+
+        // refill collectible
+        if (allCollectibles.length == randomIntGen(0,3)){
+            generateCollectibles(randomIntGen(1,5));
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -205,8 +252,8 @@ var Engine = (function(global) {
             enemy.render();
         });
 
-        allGems.forEach(function(gem){
-            gem.render();
+        allCollectibles.forEach(function(item){
+            item.render();
         });
 
         player.render();
@@ -237,7 +284,10 @@ var Engine = (function(global) {
         'images/char-boy.png',
         'images/gem_blue.png',
         'images/gem_green.png',
-        'images/gem_orange.png'
+        'images/gem_orange.png',
+        'images/Heart.png',
+        'images/Rock.png',
+        'images/Star.png'
     ]);
     Resources.onReady(init);
 

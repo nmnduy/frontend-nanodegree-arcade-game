@@ -7,6 +7,8 @@ For detailed instructions on how to get started, check out this [guide](https://
 
 ## To-do
 * Make sure environment responsive to changing dimension
+* Changing players
+* Game reset?
 * Add player's options
 * Game pausing?
 * Game reset?
@@ -17,3 +19,7 @@ For detailed instructions on how to get started, check out this [guide](https://
 * Player can move
 * Player dies when get hits, and pawn back to initial position
 * When player gets to the river, the game restart.
+
+## Known issues
+* Player's heart system doesn't work
+    * as soon as the player's heart count hits 0, the bug is right next to the player, making the player close enough to the bug as player's life count is 0.

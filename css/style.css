@@ -2,13 +2,32 @@ body {
     text-align: center;
 }
 
-#scoreBoard {
-    color: #eea348;
-}
-
 p {
+    width: 50%;
     text-align: right;
     font-family: 'Schoolbell', cursive;
     font-size: 4em;
     margin: 0;
+}
+
+#heart-count {
+    font-family: 'Schoolbell', cursive;
+    font-size: 8em;
+    margin: 0 15%;
+    padding-top: 8%;
+}
+
+#stat {
+    display: flex;
+    justify-content: space-between;
+}
+
+#heartBoard {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+}
+
+#scoreBoard, #heart-count {
+    color: #eea348;
 }

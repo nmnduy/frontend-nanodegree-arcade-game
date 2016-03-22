@@ -5,9 +5,8 @@ var numRows = 7,
 // number of enemies
 var numEnemies = 6;
 
-// number of gems
-var numGems = 2;
-
+// number of collectibles
+var numColllectible = 4;
 // y-coordinate for elements to appear squarely
 // for each row in environment
 // 0 index for row 1
@@ -35,9 +34,20 @@ var collectibles = {
 // list of gem types
 var gemTypes = ["sapphire", "emerald", "garnet"];
 
+// array of collectble
+// add all collectible types to array
+// from collectibles object
+var collectibleTypes = [];
+for (type in collectibles) {
+    if (collectibles.hasOwnProperty(type)){
+        collectibleTypes.push(type);
+    }
+}
+
 // define first row coordinate
 rowYCoord.push(-20);
 
+// populate rowYCoord with row y-coordinates
 for (var i = 1; i < numRows; i++) {
     // move up according to redefined step
     rowYCoord.push(rowYCoord[i-1] + step);
@@ -47,6 +57,42 @@ function randomIntGen(from, to) {
     // return random integer from [from] to [to]
     // [to] not included
     return Math.floor(Math.random() * to) + from;
+}
+
+function randomCollectible(){
+    // generate random collectibleTypes array
+    // @return a random Collectible type
+    // such as Gem, or Heart etc.
+    var index = randomIntGen(0, collectibleTypes.length);
+    switch(collectibleTypes[index]) {
+        case "gems":
+            return new Gem();
+            break;
+        case "heart":
+            return new Heart();
+            break;
+        case "star":
+            return new Star();
+            break;
+        default:
+            return new Gem();
+            break;
+    }
+}
+
+function generateEnemies(){
+    /* @description: generate enemies */
+    for (var i = 0; i < numEnemies; i++) {
+        allEnemies.push(new Enemy());
+    }
+}
+
+function generateCollectibles(count){
+    /* @description: generate collectibles
+     * @param {int} count: how many more collectible to add */
+    for (var i = 0; i < count; i++) {
+        allCollectibles.push(randomCollectible());
+    }
 }
 
 // Enemies our player must avoid
@@ -80,7 +126,6 @@ Enemy.prototype.random = function() {
     this.speed = randomIntGen(200,500);
 }
 
-
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
@@ -109,6 +154,10 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+    // player's lives count
+    // can be refilled by picking up hearts
+    this.lives = 0;
+
     // points
     this.points = 0;
 
@@ -198,23 +247,58 @@ Player.prototype.handleInput = function(key) {
     }
 };
 
-var Gem = function(){
-    /* Gem class */
+var Collectible = function() {
+    /* Class Collectible
+     * @description: superclass of all collectibles */
+ }
 
-    // randomly assign gem
-    this.random();
+Collectible.prototype.update = function (){};
 
-    this.update();
-}
+Collectible.prototype.render = function (){
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 
-Gem.prototype.random = function() {
+Collectible.prototype.randomPos = function() {
     // ranomize gem position
     // any row except first and last
     // any col
     this.x = randomIntGen(0,numCols) * stepAcross;
     this.y = rowYCoord[randomIntGen(1,numRows - 2)];
     this.row = rowYCoord.indexOf(this.y);
+}
 
+Collectible.prototype.vanish = function() {
+    /* @description: perform routines
+     * when user picks up this collectible */
+    var index;
+
+    // hide this collectible
+     this.x = -200;
+     this.y = -200;
+
+    // remove this collectible from
+    // allCollectibles
+    index = allCollectibles.indexOf(this);
+    allCollectibles.splice(index,1);
+}
+
+var Gem = function(){
+    /* Gem class */
+
+    // randomly assign gem
+    this.random();
+    // get right image and points based on
+    // randomized gem types
+    this.update();
+}
+
+// inherits attributes from Collectible
+Gem.prototype = Object.create(Collectible.prototype);
+Gem.prototype.constructor = Gem;
+
+Gem.prototype.random = function() {
+    // call randomPos function in Collectible superclass
+    this.randomPos();
     // randomize type
     this.type = gemTypes[randomIntGen(0,gemTypes.length)];
 }
@@ -227,32 +311,52 @@ Gem.prototype.update = function() {
     this.points = this.gemValues[this.type];
 }
 
-Gem.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
-
 Gem.prototype.gemValues = {
     "sapphire": 100,
     "emerald": 300,
     "garnet": 200
 }
 
+var Heart = function() {
+    /* Heart class
+     * gives player lives to sustain more hits
+     * from bugs */
+    this.sprite = collectibles.heart;
+
+    // randomize heart position
+    this.randomPos();
+}
+// Heart inhefits from Collectible interface
+Heart.prototype = Object.create(Collectible.prototype);
+Heart.prototype.constructor = Heart;
+
+var Star = function() {
+    /* Star class
+     * Give player points, and 1 life */
+    this.sprite = collectibles.star;
+
+    // star has some points
+    this.points = 333;
+
+    // randomize position
+    this.randomPos();
+}
+// Star inhefits from Collectible interface
+Star.prototype = Object.create(Collectible.prototype);
+Star.prototype.constructor = Star;
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var player = new Player();
 var allEnemies = [];
-var allGems = [];
+var allCollectibles = [];
 
 // create enemies
-for (var i = 0; i < numEnemies; i++) {
-    allEnemies.push(new Enemy());
-}
+generateEnemies();
 
-// create Gems
-for (var i = 0; i < numGems; i++) {
-    allGems.push(new Gem());
-}
+// create collectibles
+generateCollectibles(randomIntGen(1,5));
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
